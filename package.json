@@ -1,0 +1,42 @@
+{
+  "name": "elabox-foundation",
+  "version": "1.0.1",
+  "description": "Elabox foundation module for development dApps for elabox system. This module contains logger, app framework, server client connection and other system utilities.",
+  "main": "index",
+  "scripts": {
+    "test": "mocha --timeout 10000 -r ts-node/register tests/**/*.test.ts",
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cansulting/elabox-system.lib.nodejs.git"
+  },
+  "keywords": [
+    "elabox",
+    "dapps",
+    "crypto",
+    "ela",
+    "elastos",
+    "web3"
+  ],
+  "author": "Jhoemar Pagao",
+  "license": "LGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/cansulting/elabox-system.lib.nodejs/issues"
+  },
+  "homepage": "https://github.com/cansulting/elabox-system.lib.nodejs#readme",
+  "dependencies": {
+    "socket.io-client": "^2.4.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.22",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.10.3",
+    "@types/socket.io-client": "^3.0.0",
+    "chai": "^4.3.4",
+    "mocha": "^9.1.2",
+    "nyc": "^15.1.0",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  }
+}
