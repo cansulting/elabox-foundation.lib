@@ -48,7 +48,7 @@ describe("Logger",()=>{
         stack = syslog.create().info(message).addStack()        
         testIfMessageCreated(stack,message,level)
     })    
-    it("can able to write logs",async()=>{
+    it("can write logs",async()=>{
         const ableToWrite = await syslog.write(stack)        
         expect(ableToWrite).equals(true)        
     })
