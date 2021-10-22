@@ -22,6 +22,10 @@ describe("Logger",()=>{
     })    
     let syslog:LoggerInterface=Logger
     let stack:Log = syslog.create().info("this is an info message").addStack()
+    it("can create log",()=>{
+        stack=syslog.create();
+        expect(stack).includes.keys("log")          
+    })
     it("can create an error message",()=>{
         const message="this is an error message"
         const errorMessage="this is an error"
