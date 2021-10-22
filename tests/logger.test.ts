@@ -41,7 +41,7 @@ describe("Logger",()=>{
         testIfMessageCreated(stack,message,level)
     })
     it("can create warn message",()=>{
-        const message="this is ward message"
+        const message="this is warn message"
         const level="warn"
         stack = syslog.create().debug(message).addStack()        
         testIfMessageCreated(stack,message,level)
