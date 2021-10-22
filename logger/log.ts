@@ -52,7 +52,7 @@ class Log{
         }
         return this
     }    
-    addCaller() {
+    addCaller():this {
         var e:Error = new Error();
         if (!e.stack) {
             try {
@@ -80,7 +80,7 @@ class Log{
             this.addProperty("message", msg)
         return this
     }    
-    debug(msg:string = "") {
+    debug(msg:string = ""):this {
         return this._addLevel(msg, "debug")
     }   
     error(msg:string = "", err:string):this {
@@ -92,7 +92,7 @@ class Log{
     warn(msg:string = ""):this {
         return this._addLevel(msg, "warn")
     }    
-    info(msg:string = ""):Log {
+    info(msg:string = ""):this {
         return this._addLevel(msg, "info")
     }    
 }
