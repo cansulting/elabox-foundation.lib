@@ -34,17 +34,17 @@ class Log{
     toString(): string {
         return JSON.stringify(this.log)
     }    
-    addProperty(key:string = "", value:string):this {
+    addProperty(key:string = "", value:string):Log {
         this.log[key] = value
         return this
     }    
-    addCategory(category:string = ""):this{
+    addCategory(category:string = ""):Log{
         return this.addProperty("category", category)
     }    
-    addPackage(pkg:string = ""):this {
+    addPackage(pkg:string = ""):Log {
         return this.addProperty("package", pkg)
     }    
-    addStack():this {
+    addStack():Log {
         const err = this.log["error"] 
         if (err !== null && 
             typeof( err) === typeof(new Error())) {
@@ -52,7 +52,7 @@ class Log{
         }
         return this
     }    
-    addCaller():this {
+    addCaller():Log {
         var e:Error = new Error();
         if (!e.stack) {
             try {
@@ -71,7 +71,7 @@ class Log{
         }
         return this
     }    
-    _addLevel(msg:string, level:string):this {
+    _addLevel(msg:string, level:string):Log {
         this.addProperty("level", level)
         const date:Date = new Date( Date.now())
         const isoDate:string = date.toISOString()
@@ -80,19 +80,19 @@ class Log{
             this.addProperty("message", msg)
         return this
     }    
-    debug(msg:string = ""):this {
+    debug(msg:string = ""):Log {
         return this._addLevel(msg, "debug")
     }   
-    error(msg:string = "", err:string):this {
+    error(msg:string = "", err:string):Log {
         this._addLevel(msg, "error")
         if (err != null)
             this.addProperty("error", err)
         return this
     }     
-    warn(msg:string = ""):this {
+    warn(msg:string = ""):Log {
         return this._addLevel(msg, "warn")
     }    
-    info(msg:string = ""):this {
+    info(msg:string = ""):Log {
         return this._addLevel(msg, "info")
     }    
 }
