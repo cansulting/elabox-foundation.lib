@@ -4,7 +4,7 @@
   "description": "Elabox foundation module for development dApps for elabox system. This module contains logger, app framework, server client connection and other system utilities.",
   "main": "index",
   "scripts": {
-    "test": "mocha --timeout 10000 -r ts-node/register tests/**/*.test.ts",
+    "test": "mocha --timeout 10000 --exit -r ts-node/register tests/**/*.test.ts",
     "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
   },
   "repository": {
