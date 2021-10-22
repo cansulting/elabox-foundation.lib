@@ -26,7 +26,7 @@ describe("Logger",()=>{
         stack=syslog.create();
         expect(stack).includes.keys("log")          
     })
-    it("can create an error message",()=>{
+    it("can create error message",()=>{
         const message="this is an error message"
         const errorMessage="this is an error"
         const level ="error"
