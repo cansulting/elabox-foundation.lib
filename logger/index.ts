@@ -3,7 +3,7 @@ import Log,{defaultLogger,LogInterface} from "./log"
 import config from "../config"
 
 export interface LoggerInterface{
-    write:(log:Log)=>{},
+    write:(log:Log)=>Promise<boolean>,
     create:()=>Log
 }
 let logFile:WriteStream
@@ -43,7 +43,7 @@ export async function write(log = new Log()): Promise<boolean>{
 
 }
 
-export default{
+export default {
     write,
     create
 }
