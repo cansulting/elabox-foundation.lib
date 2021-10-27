@@ -1,10 +1,8 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.EboxEvent = void 0;
 const constants_1 = require("./constants");
-const socket_io_client_1 = __importDefault(require("socket.io-client"));
+const socketio = require("socket.io-client");
 /**
  * Class that facilitates event communication. Uses PUBSUB design pattern.
  * By default it will registers to ela.system or system package upon class initialization.
@@ -12,16 +10,37 @@ const socket_io_client_1 = __importDefault(require("socket.io-client"));
  * you must first need to register to that specific package.
  */
 class EboxEvent {
-    socket;
     /**
      * Constructor
      * @param eboxHost Url path of Elabox event server
      */
     constructor(eboxHost) {
-        this.socket = (0, socket_io_client_1.default)(eboxHost, { transports: ['websocket'] });
-        //this.socket.on("connect", () => {
-        //    this.subscribe(constants_1.SYSTEM_PACKAGE);
-        //});
+        this.socket = socketio(eboxHost, { transports: ['websocket'] });
+        this.connected = false;
+        this.socket.on("connect", () => {
+            this.connected = true;
+            this.subscribe(constants_1.SYSTEM_PACKAGE);
+        });
+        this.socket.on("disconnected", () => {
+            this.connected;
+        });
+    }
+    /**
+     * Wait until connected to server.
+     * @returns boolean True if connected
+     */
+    waitUntilConnected(timeout = 5000) {
+        return new Promise((resolve, reject) => {
+            if (this.connected) {
+                resolve(true);
+                return;
+            }
+            const timer = setTimeout(() => reject("Timeout"), timeout);
+            this.onOnce('connect', () => {
+                clearTimeout(timer);
+                resolve(true);
+            });
+        });
     }
     /**
      * Listens to other socket events
@@ -30,6 +49,17 @@ class EboxEvent {
      */
     on(evnt, callback) {
         this.socket.on(evnt, callback);
+    }
+    onOnce(evnt, callback) {
+        this.socket.once(evnt, callback);
+    }
+    /**
+     * Remove callback to specific event
+     * @param evnt Which event we will remove
+     * @param callback Function to be remove
+     */
+    off(evnt, callback) {
+        this.socket.off(evnt, callback);
     }
     /**
      * listen to any specfic action. But you need to subscribe to specific package for its services
@@ -43,19 +73,45 @@ class EboxEvent {
      * listen to specific package for any of its event
      * @param packageId Which package we will listen to.
      */
-    subscribe(packageId) {
-        this.socket.emit(constants_1.SYSTEM_PACKAGE, JSON.stringify({
+    subscribe(packageId, callback) {
+        let data = {
             id: constants_1.SUBSCRIBE_ACTION,
             data: packageId
-        }));
+        };
+        this._emit(constants_1.SYSTEM_PACKAGE, data, callback);
+    }
+    _emit(events, data, callback) {
+        if (callback)
+            this.socket.emit(events, data, callback);
+        else
+            this.socket.emit(events, data);
     }
     // use to broadcast action to specific package. if no package was defined, use system package
-    broadcast(data) {
+    broadcast(data, callback) {
         let bdata = {
             id: constants_1.BROADCAST_ACTION,
             data: JSON.stringify(data)
         };
-        this.socket.emit(constants_1.SYSTEM_PACKAGE, bdata);
+        this._emit(constants_1.SYSTEM_PACKAGE, bdata, callback);
+    }
+    /**
+     * Send remote procedure call(RPC) to the target package
+     * @param packageId The target RPC
+     * @param data The attached data to RPC call
+     */
+    sendRPC(packageId, data, callback) {
+        let bdata = {
+            id: constants_1.RPC_ACTION,
+            packageId: packageId,
+            data: JSON.stringify(data)
+        };
+        if (callback)
+            this._emit(constants_1.SYSTEM_PACKAGE, bdata, (response) => {
+                response = Buffer.from(response, 'base64').toString();
+                callback(JSON.parse(response));
+            });
+        else
+            this._emit(constants_1.SYSTEM_PACKAGE, bdata);
     }
     /**
      * Use to get the current system status.
@@ -71,4 +127,4 @@ class EboxEvent {
         }
     }
 }
-exports.default = EboxEvent;
+exports.EboxEvent = EboxEvent;
