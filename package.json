@@ -1,11 +1,13 @@
 {
   "name": "elabox-foundation",
-  "version": "1.0.1",
+  "version": "1.0.8",
   "description": "Elabox foundation module for development dApps for elabox system. This module contains logger, app framework, server client connection and other system utilities.",
-  "main": "index",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "mocha --timeout 10000 --exit -r ts-node/register tests/**/*.test.ts",
-    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test"
+    "test": "mocha --timeout 10000 -r ts-node/register tests/**/*.test.ts",
+    "coverage": "nyc -r lcov -e .ts -x \"*.test.ts\" npm run test",
+    "prepublish": "tsc"
   },
   "repository": {
     "type": "git",
@@ -26,15 +28,15 @@
   },
   "homepage": "https://github.com/cansulting/elabox-system.lib.nodejs#readme",
   "dependencies": {
-    "socket.io-client": "^2.4.0"
+    "socket.io-client": "^2.4.0",
+    "@types/node": "^16.10.3",
+    "@types/socket.io-client": "^3.0.0"
   },
   "devDependencies": {
+    "chai": "^4.3.4",
     "@types/chai": "^4.2.22",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^16.10.3",
     "@types/sinon": "^10.0.4",
-    "@types/socket.io-client": "^3.0.0",
-    "chai": "^4.3.4",
     "mocha": "^9.1.2",
     "nyc": "^15.1.0",
     "sinon": "^11.1.2",
