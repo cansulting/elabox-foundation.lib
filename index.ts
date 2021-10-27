@@ -1,1 +1,1 @@
-import {} from "./EboxEvent.js"
+export * from './EboxEvent'

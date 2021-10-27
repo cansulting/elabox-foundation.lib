@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es6",
     "module": "commonjs",
     "baseUrl": ".",
     "outDir": "./dist",
@@ -8,6 +8,7 @@
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "declaration": true,
     "moduleResolution": "node",
     "typeRoots": [
       "./node_modules/@types/"
@@ -18,7 +19,7 @@
       ]
     }
   },
-    "include": [
+  "include": [
       "./**/*"
   ],
   "exclude": [

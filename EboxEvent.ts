@@ -2,12 +2,13 @@ import { SYSTEM_PACKAGE,
     BROADCAST_ACTION, 
     SUBSCRIBE_ACTION, 
     ELASTATUS_ENV,
-    STATUSCHANGED_ACTION
+    STATUSCHANGED_ACTION,
+    RPC_ACTION
 } from "./constants"
 const socketio = require( "socket.io-client")
 
 export interface EventData {
-    id: string          // action id
+    id: string               // action id
     packageId?: string       // package id can be ela.system
     data?: any               // any data attached to event
 } 
@@ -18,7 +19,7 @@ export interface EventData {
  * To use any specific package service so you can listen to its actions, 
  * you must first need to register to that specific package.
  */
- class EboxEvent {
+ export class EboxEvent {
     socket : any
     connected : boolean
 
@@ -39,12 +40,43 @@ export interface EventData {
     }
 
     /**
+     * Wait until connected to server.
+     * @returns boolean True if connected
+     */
+    waitUntilConnected(timeout = 5000) : Promise<Boolean> {
+        return new Promise((resolve, reject) => {
+            if  (this.connected) {
+                resolve(true)
+                return
+            }
+            const timer = setTimeout(() => reject("Timeout"), timeout)
+            this.onOnce('connect', () => {
+                clearTimeout(timer)
+                resolve(true)
+            })
+        })
+    }
+    
+    /**
      * Listens to other socket events
      * @param evnt Which event we will listen to
      * @param callback Function to be called once the event is fired
      */
-    on(evnt:string, callback : (...args:any) => void) {
+    on(evnt:string, callback : (args:any) => void) {
         this.socket.on(evnt, callback)
+    }
+
+    onOnce(evnt:string, callback : (args:any) => void) {
+        this.socket.once(evnt, callback)
+    }
+
+    /**
+     * Remove callback to specific event
+     * @param evnt Which event we will remove
+     * @param callback Function to be remove
+     */
+    off(evnt:string, callback : (args:any) => void) {
+        this.socket.off(evnt, callback)
     }
     
     /**
@@ -52,7 +84,7 @@ export interface EventData {
      * @param action Action which will listen to
      * @param callback Function to be called once an action was triggered
      */
-    onAction(action: string, callback: (...args:any) => void) {
+    onAction(action: string, callback: (args:any) => void) {
         this.on(action, callback)
     }
 
@@ -60,21 +92,48 @@ export interface EventData {
      * listen to specific package for any of its event
      * @param packageId Which package we will listen to.
      */
-    subscribe(packageId:string, callback?: (...response:any) => void) {
+    subscribe(packageId:string, callback?: (response:any) => void) {
         let data = {
             id: SUBSCRIBE_ACTION,
             data: packageId
         }
-        this.socket.emit(SYSTEM_PACKAGE, data)
+        this._emit(SYSTEM_PACKAGE, data, callback)
+    }
+
+    _emit(events:string, data : any, callback?: (response:any) => void ) {
+        if (callback)
+            this.socket.emit(events, data, callback)
+        else
+            this.socket.emit(events, data)
     }
 
     // use to broadcast action to specific package. if no package was defined, use system package
-    broadcast(data : EventData, callback? : (...response:any) => void) {
+    broadcast(data : EventData, callback? : (response:any) => void) {
         let bdata = {
             id: BROADCAST_ACTION,
             data: JSON.stringify(data)
         }
-        this.socket.emit(SYSTEM_PACKAGE,  bdata)
+        this._emit(SYSTEM_PACKAGE,  bdata, callback)
+    }
+    
+    /**
+     * Send remote procedure call(RPC) to the target package
+     * @param packageId The target RPC 
+     * @param data The attached data to RPC call
+     */
+    sendRPC(packageId:string, data : EventData, callback? : (response:any) => void) {
+        let bdata = {
+            id: RPC_ACTION,
+            packageId: packageId,
+            data: JSON.stringify(data)
+        }
+        if (callback)
+            this._emit(SYSTEM_PACKAGE,  bdata, (response) => {
+                response = Buffer.from(response, 'base64').toString()
+                callback(JSON.parse(response));
+            })
+        else 
+            this._emit(SYSTEM_PACKAGE,  bdata)
     }
 
     /**
@@ -91,5 +150,3 @@ export interface EventData {
         }
     } 
 }
-
-export default EboxEvent

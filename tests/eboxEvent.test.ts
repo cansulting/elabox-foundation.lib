@@ -1,10 +1,11 @@
 import { expect, assert } from 'chai'
-import EventHandler from '../EboxEvent'
+import { EboxEvent } from '../EboxEvent'
+import { RPC_ACTION, SYSTEM_PACKAGE } from '../constants'
 
 describe("Event System", () => {
-    let instance :EventHandler
+    let instance :EboxEvent
     it ("connection", (done) => {
-        instance = new EventHandler('http://localhost')
+        instance = new EboxEvent('http://localhost')
         if (instance.connected)  {
             done()
         } else {
@@ -28,10 +29,21 @@ describe("Event System", () => {
                 packageId: "app.testing",
                 data: "this is it!"
             }
-            instance.broadcast(data)
+            instance.broadcast(data, (response) => console.log("Broadcast response " + response))
         }else {
             done("Not connected to broadcast action.")
         }
         
+    })
+    it ("RPC", (done) => {
+        instance.sendRPC(
+            SYSTEM_PACKAGE,{
+            id: "testrpc",
+            data: "HELLO"
+        }, (response) => {
+            console.log("Recieved " + response )
+            done()
+        })
+
     })
 })
