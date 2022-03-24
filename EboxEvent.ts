@@ -5,6 +5,7 @@ import { SYSTEM_PACKAGE,
     STATUSCHANGED_ACTION,
     RPC_ACTION
 } from "./constants"
+//import {Buffer} from 'buffer';
 const socketio = require( "socket.io-client")
 
 export interface EventData {
@@ -35,8 +36,17 @@ export interface EventData {
             this.subscribe(SYSTEM_PACKAGE)
         })
         this.socket.on("disconnected", () => {
-            this.connected
+            this.connected = false
         })
+        this.socket.on('connect_error', (err: Error) => {
+            //assert.equal(err, null || undefined, err.description.message)
+            
+            console.log("Error found", err)
+        })
+    }
+
+    disconnect() {
+
     }
 
     /**
@@ -95,7 +105,7 @@ export interface EventData {
     subscribe(packageId:string, callback?: (response:any) => void) {
         let data = {
             id: SUBSCRIBE_ACTION,
-            data: packageId
+            packageId: packageId
         }
         this._emit(SYSTEM_PACKAGE, data, callback)
     }
@@ -108,10 +118,14 @@ export interface EventData {
     }
 
     // use to broadcast action to specific package. if no package was defined, use system package
-    broadcast(data : EventData, callback? : (response:any) => void) {
+    broadcast(actionId: string, packageId?: string, data? : any, callback? : (response:any) => void) {
         let bdata = {
             id: BROADCAST_ACTION,
-            data: JSON.stringify(data)
+            data: JSON.stringify({
+                id: actionId,
+                packageId: packageId,
+                data: data
+            })
         }
         this._emit(SYSTEM_PACKAGE,  bdata, callback)
     }
@@ -121,20 +135,23 @@ export interface EventData {
      * @param packageId The target RPC 
      * @param data The attached data to RPC call
      */
-    sendRPC(packageId:string, data : EventData, callback? : (response:any) => void) {
+    sendRPC(packageId:string, actionId: string, data? : any) : Promise<any> {
         let bdata = {
             id: RPC_ACTION,
             packageId: packageId,
-            data: JSON.stringify(data)
+            data: {
+                id: actionId,
+                data: data
+            },
         }
-        if (callback)
+        return new Promise<any>((resolve, reject) => {
             this._emit(SYSTEM_PACKAGE,  bdata, (response) => {
                 response = Buffer.from(response, 'base64').toString()
-                callback(JSON.parse(response));
+                resolve(JSON.parse(response));
             })
-        else 
-            this._emit(SYSTEM_PACKAGE,  bdata)
+        })
     }
+
 
     /**
      * Use to get the current system status.

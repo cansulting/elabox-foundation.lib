@@ -5,7 +5,7 @@ const constants_1 = require("../constants");
 describe("Event System", () => {
     let instance;
     it("connection", (done) => {
-        instance = new EboxEvent_1.EboxEvent('http://localhost');
+        instance = new EboxEvent_1.EboxEvent('http://192.168.118.25');
         if (instance.connected) {
             done();
         }
@@ -25,22 +25,16 @@ describe("Event System", () => {
             instance.onAction("testaction", (_arg) => {
                 done();
             });
-            const data = {
-                id: "testaction",
-                packageId: "app.testing",
-                data: "this is it!"
-            };
-            instance.broadcast(data, (response) => console.log("Broadcast response " + response));
+            instance.broadcast("testaction", "app.testing", "this is it!", (response) => {
+                console.log("Broadcast response " + response);
+            });
         }
         else {
             done("Not connected to broadcast action.");
         }
     });
     it("RPC", (done) => {
-        instance.sendRPC(constants_1.SYSTEM_PACKAGE, {
-            id: "testrpc",
-            data: "HELLO"
-        }, (response) => {
+        instance.sendRPC(constants_1.SYSTEM_PACKAGE, "testrpc", "hello").then(response => {
             console.log("Recieved " + response);
             done();
         });

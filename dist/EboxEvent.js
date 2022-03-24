@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EboxEvent = void 0;
 const constants_1 = require("./constants");
+//import {Buffer} from 'buffer';
 const socketio = require("socket.io-client");
 /**
  * Class that facilitates event communication. Uses PUBSUB design pattern.
@@ -22,8 +23,14 @@ class EboxEvent {
             this.subscribe(constants_1.SYSTEM_PACKAGE);
         });
         this.socket.on("disconnected", () => {
-            this.connected;
+            this.connected = false;
         });
+        this.socket.on('connect_error', (err) => {
+            //assert.equal(err, null || undefined, err.description.message)
+            console.log("Error found", err);
+        });
+    }
+    disconnect() {
     }
     /**
      * Wait until connected to server.
@@ -76,7 +83,7 @@ class EboxEvent {
     subscribe(packageId, callback) {
         let data = {
             id: constants_1.SUBSCRIBE_ACTION,
-            data: packageId
+            packageId: packageId
         };
         this._emit(constants_1.SYSTEM_PACKAGE, data, callback);
     }
@@ -87,10 +94,14 @@ class EboxEvent {
             this.socket.emit(events, data);
     }
     // use to broadcast action to specific package. if no package was defined, use system package
-    broadcast(data, callback) {
+    broadcast(actionId, packageId, data, callback) {
         let bdata = {
             id: constants_1.BROADCAST_ACTION,
-            data: JSON.stringify(data)
+            data: JSON.stringify({
+                id: actionId,
+                packageId: packageId,
+                data: data
+            })
         };
         this._emit(constants_1.SYSTEM_PACKAGE, bdata, callback);
     }
@@ -99,19 +110,21 @@ class EboxEvent {
      * @param packageId The target RPC
      * @param data The attached data to RPC call
      */
-    sendRPC(packageId, data, callback) {
+    sendRPC(packageId, actionId, data) {
         let bdata = {
             id: constants_1.RPC_ACTION,
             packageId: packageId,
-            data: JSON.stringify(data)
+            data: {
+                id: actionId,
+                data: data
+            },
         };
-        if (callback)
+        return new Promise((resolve, reject) => {
             this._emit(constants_1.SYSTEM_PACKAGE, bdata, (response) => {
                 response = Buffer.from(response, 'base64').toString();
-                callback(JSON.parse(response));
+                resolve(JSON.parse(response));
             });
-        else
-            this._emit(constants_1.SYSTEM_PACKAGE, bdata);
+        });
     }
     /**
      * Use to get the current system status.

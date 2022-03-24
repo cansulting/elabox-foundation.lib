@@ -17,6 +17,7 @@ export declare class EboxEvent {
      * @param eboxHost Url path of Elabox event server
      */
     constructor(eboxHost: string);
+    disconnect(): void;
     /**
      * Wait until connected to server.
      * @returns boolean True if connected
@@ -47,13 +48,13 @@ export declare class EboxEvent {
      */
     subscribe(packageId: string, callback?: (response: any) => void): void;
     _emit(events: string, data: any, callback?: (response: any) => void): void;
-    broadcast(data: EventData, callback?: (response: any) => void): void;
+    broadcast(actionId: string, packageId?: string, data?: any, callback?: (response: any) => void): void;
     /**
      * Send remote procedure call(RPC) to the target package
      * @param packageId The target RPC
      * @param data The attached data to RPC call
      */
-    sendRPC(packageId: string, data: EventData, callback?: (response: any) => void): void;
+    sendRPC(packageId: string, actionId: string, data?: any): Promise<any>;
     /**
      * Use to get the current system status.
      * @param callback Function to be called once status was returned.
