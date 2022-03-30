@@ -133,18 +133,20 @@ export interface EventData {
     /**
      * Send remote procedure call(RPC) to the target package
      * @param packageId The target RPC 
+     * @param actionPackage The package connected to this action
      * @param data The attached data to RPC call
      */
-    sendRPC(packageId:string, actionId: string, data? : any) : Promise<any> {
+    sendRPC(packageId:string, actionId: string, actionPackage?: string, data? : any) : Promise<any> {
         let bdata = {
             id: RPC_ACTION,
             packageId: packageId,
             data: {
                 id: actionId,
+                packageId: actionPackage,
                 data: data
             },
         }
-        return new Promise<any>((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             this._emit(SYSTEM_PACKAGE,  bdata, (response) => {
                 response = Buffer.from(response, 'base64').toString()
                 resolve(JSON.parse(response));

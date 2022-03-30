@@ -108,14 +108,16 @@ class EboxEvent {
     /**
      * Send remote procedure call(RPC) to the target package
      * @param packageId The target RPC
+     * @param actionPackage The package connected to this action
      * @param data The attached data to RPC call
      */
-    sendRPC(packageId, actionId, data) {
+    sendRPC(packageId, actionId, actionPackage, data) {
         let bdata = {
             id: constants_1.RPC_ACTION,
             packageId: packageId,
             data: {
                 id: actionId,
+                packageId: actionPackage,
                 data: data
             },
         };

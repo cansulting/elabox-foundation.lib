@@ -52,9 +52,10 @@ export declare class EboxEvent {
     /**
      * Send remote procedure call(RPC) to the target package
      * @param packageId The target RPC
+     * @param actionPackage The package connected to this action
      * @param data The attached data to RPC call
      */
-    sendRPC(packageId: string, actionId: string, data?: any): Promise<any>;
+    sendRPC(packageId: string, actionId: string, actionPackage?: string, data?: any): Promise<any>;
     /**
      * Use to get the current system status.
      * @param callback Function to be called once status was returned.
