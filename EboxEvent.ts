@@ -137,21 +137,14 @@ export interface EventData {
      * @param data The attached data to RPC call
      */
     sendRPC(packageId:string, actionId: string, actionPackage?: string, data? : any) : Promise<any> {
-        let bdata = {
-            id: RPC_ACTION,
-            packageId: packageId,
-            data: {
+        return this.sendSystemRPC(
+            RPC_ACTION, 
+            packageId, 
+            {
                 id: actionId,
                 packageId: actionPackage,
                 data: data
-            },
-        }
-        return new Promise((resolve, reject) => {
-            this._emit(SYSTEM_PACKAGE,  bdata, (response) => {
-                response = Buffer.from(response, 'base64').toString()
-                resolve(JSON.parse(response));
             })
-        })
     }
 
     /**
@@ -160,7 +153,17 @@ export interface EventData {
      * @param data The attached data to RPC call 
      */
     sendSystemRPC(actionId: string, actionPackage?: string, data? : any): Promise<any> {
-        return this.sendRPC(SYSTEM_PACKAGE, actionId, actionPackage, data);
+        let bdata = {
+            id: actionId,
+            packageId: actionPackage,
+            data: data
+        }
+        return new Promise((resolve, reject) => {
+            this._emit(SYSTEM_PACKAGE,  bdata, (response) => {
+                response = Buffer.from(response, 'base64').toString()
+                resolve(JSON.parse(response));
+            })
+        })
     }
 
     /**

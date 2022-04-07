@@ -1,6 +1,6 @@
 {
   "name": "elabox-foundation",
-  "version": "1.1.4",
+  "version": "1.1.6",
   "description": "Elabox foundation module for development dApps for elabox system. This module contains logger, app framework, server client connection and other system utilities.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -112,20 +112,10 @@ class EboxEvent {
      * @param data The attached data to RPC call
      */
     sendRPC(packageId, actionId, actionPackage, data) {
-        let bdata = {
-            id: constants_1.RPC_ACTION,
-            packageId: packageId,
-            data: {
-                id: actionId,
-                packageId: actionPackage,
-                data: data
-            },
-        };
-        return new Promise((resolve, reject) => {
-            this._emit(constants_1.SYSTEM_PACKAGE, bdata, (response) => {
-                response = Buffer.from(response, 'base64').toString();
-                resolve(JSON.parse(response));
-            });
+        return this.sendSystemRPC(constants_1.RPC_ACTION, packageId, {
+            id: actionId,
+            packageId: actionPackage,
+            data: data
         });
     }
     /**
@@ -134,7 +124,17 @@ class EboxEvent {
      * @param data The attached data to RPC call
      */
     sendSystemRPC(actionId, actionPackage, data) {
-        return this.sendRPC(constants_1.SYSTEM_PACKAGE, actionId, actionPackage, data);
+        let bdata = {
+            id: actionId,
+            packageId: actionPackage,
+            data: data
+        };
+        return new Promise((resolve, reject) => {
+            this._emit(constants_1.SYSTEM_PACKAGE, bdata, (response) => {
+                response = Buffer.from(response, 'base64').toString();
+                resolve(JSON.parse(response));
+            });
+        });
     }
     /**
      * Use to get the current system status.
