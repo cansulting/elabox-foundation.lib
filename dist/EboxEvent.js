@@ -129,6 +129,14 @@ class EboxEvent {
         });
     }
     /**
+     * Sends RPC to system
+     * @param actionPackage The package connected to this action
+     * @param data The attached data to RPC call
+     */
+    sendSystemRPC(actionId, actionPackage, data) {
+        return this.sendRPC(constants_1.SYSTEM_PACKAGE, actionId, actionPackage, data);
+    }
+    /**
      * Use to get the current system status.
      * @param callback Function to be called once status was returned.
      * Theres any changes this will also be called if listentoChanges is true

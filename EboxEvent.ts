@@ -154,6 +154,14 @@ export interface EventData {
         })
     }
 
+    /**
+     * Sends RPC to system
+     * @param actionPackage The package connected to this action
+     * @param data The attached data to RPC call 
+     */
+    sendSystemRPC(actionId: string, actionPackage?: string, data? : any): Promise<any> {
+        return this.sendRPC(SYSTEM_PACKAGE, actionId, actionPackage, data);
+    }
 
     /**
      * Use to get the current system status.

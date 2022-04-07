@@ -57,6 +57,12 @@ export declare class EboxEvent {
      */
     sendRPC(packageId: string, actionId: string, actionPackage?: string, data?: any): Promise<any>;
     /**
+     * Sends RPC to system
+     * @param actionPackage The package connected to this action
+     * @param data The attached data to RPC call
+     */
+    sendSystemRPC(actionId: string, actionPackage?: string, data?: any): Promise<any>;
+    /**
      * Use to get the current system status.
      * @param callback Function to be called once status was returned.
      * Theres any changes this will also be called if listentoChanges is true
