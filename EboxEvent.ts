@@ -174,7 +174,7 @@ export interface EventData {
      * False if only check the current status
      */
     getStatus(callback: (status: string) => {}, listenToChanges = true) {
-        this.on(ELASTATUS_ENV, callback)
+        this._emit(ELASTATUS_ENV, null, callback)
         if (listenToChanges) {
             this.onAction(STATUSCHANGED_ACTION, callback)
         }
