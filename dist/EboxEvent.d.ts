@@ -3,6 +3,9 @@ export interface EventData {
     packageId?: string;
     data?: any;
 }
+type PersistEvent = {
+    [key: string]: any;
+};
 /**
  * Class that facilitates event communication. Uses PUBSUB design pattern.
  * By default it will registers to ela.system or system package upon class initialization.
@@ -12,6 +15,7 @@ export interface EventData {
 export declare class EboxEvent {
     socket: any;
     connected: boolean;
+    persistEvents: PersistEvent;
     /**
      * Constructor
      * @param eboxHost Url path of Elabox event server
@@ -27,8 +31,9 @@ export declare class EboxEvent {
      * Listens to other socket events
      * @param evnt Which event we will listen to
      * @param callback Function to be called once the event is fired
-     */
-    on(evnt: string, callback: (args: any) => void): void;
+     * @param persist true if reregister when reconnected
+    */
+    on(evnt: string, callback: (args: any) => void, persist?: boolean): void;
     onOnce(evnt: string, callback: (args: any) => void): void;
     /**
      * Remove callback to specific event
@@ -41,7 +46,7 @@ export declare class EboxEvent {
      * @param action Action which will listen to
      * @param callback Function to be called once an action was triggered
      */
-    onAction(action: string, callback: (args: any) => void): void;
+    onAction(action: string, callback: (args: any) => void, persist?: boolean): void;
     /**
      * listen to specific package for any of its event
      * @param packageId Which package we will listen to.
@@ -69,5 +74,6 @@ export declare class EboxEvent {
      * @param listenToChanges True if callback will also called when theres changes with system status.
      * False if only check the current status
      */
-    getStatus(callback: (status: string) => {}, listenToChanges?: boolean): void;
+    getStatus(callback: (status: string) => void, listenToChanges?: boolean): void;
 }
+export {};

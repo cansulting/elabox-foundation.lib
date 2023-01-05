@@ -14,6 +14,10 @@ export interface EventData {
     data?: any               // any data attached to event
 } 
 
+type PersistEvent = {
+    [key:string]: any;
+}
+
 /**
  * Class that facilitates event communication. Uses PUBSUB design pattern.
  * By default it will registers to ela.system or system package upon class initialization.
@@ -23,6 +27,7 @@ export interface EventData {
  export class EboxEvent {
     socket : any
     connected : boolean
+    persistEvents : PersistEvent = {}
 
     /**
      * Constructor
@@ -33,10 +38,19 @@ export interface EventData {
         this.connected = false
         this.socket.on("connect", () => {
             this.connected = true
+            console.log("Connected")
             this.subscribe(SYSTEM_PACKAGE)
+            // re-register events 
+            for (const key in this.persistEvents) {
+                const callbacks = this.persistEvents[key];
+                for (const callback of callbacks) {
+                    this.on(key, callback, false)
+                }
+            }
         })
         this.socket.on("disconnected", () => {
             this.connected = false
+            console.log("Disconnected")
         })
         this.socket.on('connect_error', (err: Error) => {
             //assert.equal(err, null || undefined, err.description.message)
@@ -71,9 +85,15 @@ export interface EventData {
      * Listens to other socket events
      * @param evnt Which event we will listen to
      * @param callback Function to be called once the event is fired
-     */
-    on(evnt:string, callback : (args:any) => void) {
+     * @param persist true if reregister when reconnected
+    */
+    on(evnt:string, callback : (args:any) => void, persist: boolean = false) {
         this.socket.on(evnt, callback)
+        if (persist) {
+            if (!this.persistEvents[evnt]) 
+                this.persistEvents[evnt] = []
+            this.persistEvents[evnt].push(callback)
+        }
     }
 
     onOnce(evnt:string, callback : (args:any) => void) {
@@ -87,6 +107,11 @@ export interface EventData {
      */
     off(evnt:string, callback : (args:any) => void) {
         this.socket.off(evnt, callback)
+        if (this.persistEvents[evnt]) {
+            const index = this.persistEvents[evnt].findIndex( (val:any) => val === callback )
+            if (index >= 0)
+                this.persistEvents[evnt].splice(index)
+        }
     }
     
     /**
@@ -94,8 +119,8 @@ export interface EventData {
      * @param action Action which will listen to
      * @param callback Function to be called once an action was triggered
      */
-    onAction(action: string, callback: (args:any) => void) {
-        this.on(action, callback)
+    onAction(action: string, callback: (args:any) => void, persist: boolean = false) {
+        this.on(action, callback, persist)
     }
 
     /** 
@@ -173,7 +198,7 @@ export interface EventData {
      * @param listenToChanges True if callback will also called when theres changes with system status. 
      * False if only check the current status
      */
-    getStatus(callback: (status: string) => {}, listenToChanges = true) {
+    getStatus(callback: (status: string) => void, listenToChanges = true) {
         this._emit(ELASTATUS_ENV, null, callback)
         if (listenToChanges) {
             this.onAction(STATUSCHANGED_ACTION, callback)

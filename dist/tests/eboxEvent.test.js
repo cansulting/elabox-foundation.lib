@@ -5,7 +5,7 @@ const constants_1 = require("../constants");
 describe("Event System", () => {
     let instance;
     it("connection", (done) => {
-        instance = new EboxEvent_1.EboxEvent('http://192.168.118.25');
+        instance = new EboxEvent_1.EboxEvent('http://192.168.119.25');
         if (instance.connected) {
             done();
         }

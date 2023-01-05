@@ -16,14 +16,24 @@ class EboxEvent {
      * @param eboxHost Url path of Elabox event server
      */
     constructor(eboxHost) {
+        this.persistEvents = {};
         this.socket = socketio(eboxHost, { transports: ['websocket'] });
         this.connected = false;
         this.socket.on("connect", () => {
             this.connected = true;
+            console.log("Connected");
             this.subscribe(constants_1.SYSTEM_PACKAGE);
+            // re-register events 
+            for (const key in this.persistEvents) {
+                const callbacks = this.persistEvents[key];
+                for (const callback of callbacks) {
+                    this.on(key, callback, false);
+                }
+            }
         });
         this.socket.on("disconnected", () => {
             this.connected = false;
+            console.log("Disconnected");
         });
         this.socket.on('connect_error', (err) => {
             //assert.equal(err, null || undefined, err.description.message)
@@ -53,9 +63,15 @@ class EboxEvent {
      * Listens to other socket events
      * @param evnt Which event we will listen to
      * @param callback Function to be called once the event is fired
-     */
-    on(evnt, callback) {
+     * @param persist true if reregister when reconnected
+    */
+    on(evnt, callback, persist = false) {
         this.socket.on(evnt, callback);
+        if (persist) {
+            if (!this.persistEvents[evnt])
+                this.persistEvents[evnt] = [];
+            this.persistEvents[evnt].push(callback);
+        }
     }
     onOnce(evnt, callback) {
         this.socket.once(evnt, callback);
@@ -67,14 +83,19 @@ class EboxEvent {
      */
     off(evnt, callback) {
         this.socket.off(evnt, callback);
+        if (this.persistEvents[evnt]) {
+            const index = this.persistEvents[evnt].findIndex((val) => val === callback);
+            if (index >= 0)
+                this.persistEvents[evnt].splice(index);
+        }
     }
     /**
      * listen to any specfic action. But you need to subscribe to specific package for its services
      * @param action Action which will listen to
      * @param callback Function to be called once an action was triggered
      */
-    onAction(action, callback) {
-        this.on(action, callback);
+    onAction(action, callback, persist = false) {
+        this.on(action, callback, persist);
     }
     /**
      * listen to specific package for any of its event
