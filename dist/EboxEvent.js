@@ -167,7 +167,7 @@ class EboxEvent {
     getStatus(callback, listenToChanges = true) {
         this._emit(constants_1.ELASTATUS_ENV, null, callback);
         if (listenToChanges) {
-            this.onAction(constants_1.STATUSCHANGED_ACTION, callback);
+            this.onAction(constants_1.STATUSCHANGED_ACTION, callback, true);
         }
     }
 }

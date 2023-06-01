@@ -5,7 +5,7 @@ import { RPC_ACTION, SYSTEM_PACKAGE } from '../constants'
 describe("Event System", () => {
     let instance :EboxEvent
     it ("connection", (done) => {
-        instance = new EboxEvent('http://192.168.118.25')
+        instance = new EboxEvent('http://192.168.119.25')
         if (instance.connected)  {
             done()
         } else {

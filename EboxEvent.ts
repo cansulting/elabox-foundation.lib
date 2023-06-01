@@ -201,7 +201,7 @@ type PersistEvent = {
     getStatus(callback: (status: string) => void, listenToChanges = true) {
         this._emit(ELASTATUS_ENV, null, callback)
         if (listenToChanges) {
-            this.onAction(STATUSCHANGED_ACTION, callback)
+            this.onAction(STATUSCHANGED_ACTION, callback, true)
         }
     } 
 }
